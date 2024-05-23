@@ -41,11 +41,19 @@ pub struct CreateLiquidityPool<'info> {
     #[account(
         init,
         payer = payer,
+        associated_token::mint = mint_token_two,
+        associated_token::authority = pool
+    )]
+    pub pool_token_account_two: Box<Account<'info, TokenAccount>>,
+
+
+    #[account(
+        init,
+        payer = payer,
         associated_token::mint = mint_token_one,
         associated_token::authority = pool
     )]
     pub pool_token_account_one: Box<Account<'info, TokenAccount>>,
-
     #[account(
         init,
         payer = payer,
