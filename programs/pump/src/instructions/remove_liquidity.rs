@@ -10,6 +10,7 @@ use crate::{
 };
 
 pub fn remove_liquidity(ctx: Context<RemoveLiquidity>, shares: u64) -> Result<()> {
+    
     let pool = &mut ctx.accounts.pool;
 
     let token_one_accounts = (
@@ -43,6 +44,7 @@ pub struct RemoveLiquidity<'info> {
         seeds = [LiquidityPool::POOL_SEED_PREFIX.as_bytes(), mint_token_one.key().as_ref()],
         bump = pool.bump
     )]
+    
     pub pool: Box<Account<'info, LiquidityPool>>,
 
     #[account(
@@ -52,6 +54,7 @@ pub struct RemoveLiquidity<'info> {
         seeds = [LiquidityProvider::SEED_PREFIX.as_bytes(), pool.key().as_ref(), user.key().as_ref()],
         bump,
     )]
+    
     pub liquidity_provider_account: Box<Account<'info, LiquidityProvider>>,
 
     #[account(mut)]
@@ -62,6 +65,7 @@ pub struct RemoveLiquidity<'info> {
         associated_token::mint = mint_token_one,
         associated_token::authority = pool
     )]
+    
     pub pool_token_account_one: Box<Account<'info, TokenAccount>>,
 
     #[account(
