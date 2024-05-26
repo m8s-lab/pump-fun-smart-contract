@@ -1,12 +1,12 @@
 [package]
-name = "dex"
+name = "pump"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "dex"
+name = "pump"
 
 [features]
 no-entrypoint = []
@@ -18,5 +18,5 @@ default = []
 [dependencies]
 anchor-lang = { version="0.29.0", features = ["init-if-needed"] }
 anchor-spl = "0.29.0"
-solana-program = "1.18.2"
+solana-program = "1.14.17"
 spl-token = "4.0.1"

@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
 
 #[error_code]
-pub enum DexProgramError {
-    #[msg("Insufficient funds to swap")]
-    InsufficientFunds,
+pub enum CustomError {
+    #[msg("Duplicate tokens are not allowed")]
+    DuplicateTokenNotAllowed,
 
     #[msg("Failed to allocate shares")]
     FailedToAllocateShares,
@@ -14,14 +14,14 @@ pub enum DexProgramError {
     #[msg("Insufficient shares")]
     InsufficientShares,
 
+    #[msg("Insufficient funds to swap")]
+    InsufficientFunds,
+
     #[msg("Invalid amount to swap")]
     InvalidAmount,
 
     #[msg("Invalid fee")]
     InvalidFee,
-
-    #[msg("Duplicate tokens are not allowed")]
-    DuplicateTokenNotAllowed,
 
     #[msg("Failed to add liquidity")]
     FailedToAddLiquidity,

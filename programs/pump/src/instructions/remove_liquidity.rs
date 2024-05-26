@@ -9,7 +9,7 @@ use crate::{
     state::{LiquidityPool, LiquidityPoolAccount, LiquidityProvider},
 };
 
-pub fn add_liquidity(ctx: Context<AddLiquidity>, amount_one: u64, amount_two: u64) -> Result<()> {
+pub fn remove_liquidity(ctx: Context<RemoveLiquidity>, shares: u64) -> Result<()> {
     let pool = &mut ctx.accounts.pool;
 
     let token_one_accounts = (
@@ -24,16 +24,10 @@ pub fn add_liquidity(ctx: Context<AddLiquidity>, amount_one: u64, amount_two: u6
         &mut ctx.accounts.user.to_account_info().clone(),
     );
 
-    pool.set_inner(LiquidityPool::new(
-        ctx.accounts.mint_token_one.key(),
-        ctx.bumps.pool,
-    ));
-
-    pool.add_liquidity(
+    pool.remove_liquidity(
         token_one_accounts,
         token_two_accounts,
-        amount_one,
-        amount_two,
+        shares,
         &mut *ctx.accounts.liquidity_provider_account,
         &ctx.accounts.user,
         &ctx.accounts.token_program,
@@ -43,13 +37,11 @@ pub fn add_liquidity(ctx: Context<AddLiquidity>, amount_one: u64, amount_two: u6
 }
 
 #[derive(Accounts)]
-pub struct AddLiquidity<'info> {
+pub struct RemoveLiquidity<'info> {
     #[account(
-        init,
-        space = LiquidityPool::ACCOUNT_SIZE,
-        payer = user,
+        mut,
         seeds = [LiquidityPool::POOL_SEED_PREFIX.as_bytes(), mint_token_one.key().as_ref()],
-        bump
+        bump = pool.bump
     )]
     pub pool: Box<Account<'info, LiquidityPool>>,
 
@@ -66,19 +58,11 @@ pub struct AddLiquidity<'info> {
     pub mint_token_one: Box<Account<'info, Mint>>,
 
     #[account(
-        init,
-        payer = user,
+        mut,
         associated_token::mint = mint_token_one,
         associated_token::authority = pool
     )]
     pub pool_token_account_one: Box<Account<'info, TokenAccount>>,
-
-    // #[account(
-    //     mut,
-    //     associated_token::mint = mint_token_two,
-    //     associated_token::authority = pool
-    // )]
-    // pub pool_token_account_two: Box<Account<'info, TokenAccount>>,
 
     #[account(
         mut,
@@ -86,13 +70,6 @@ pub struct AddLiquidity<'info> {
         associated_token::authority = user,
     )]
     pub user_token_account_one: Box<Account<'info, TokenAccount>>,
-
-    // #[account(
-    //     mut,
-    //     associated_token::mint = mint_token_two,
-    //     associated_token::authority = user,
-    // )]
-    // pub user_token_account_two: Box<Account<'info, TokenAccount>>,
 
     #[account(mut)]
     pub user: Signer<'info>,

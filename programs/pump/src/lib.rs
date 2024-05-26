@@ -1,25 +1,26 @@
 use anchor_lang::prelude::*;
 
 pub mod errors;
-pub mod helpers;
+pub mod utils;
 pub mod instructions;
 pub mod state;
+pub mod consts;
 
 use crate::instructions::*;
 
-declare_id!("HHtpy5cez4guhvwoXVCZzo8EUce6ouJyXaxZ7r9CVR24");
+declare_id!("2Yf3UsHvREh1iQDAK6ZJf3uQb9ZGpHhPzy3D2jJQxLXQ");
 
 #[program]
-pub mod dex {
+pub mod pump {
     use super::*;
 
-    pub fn initialize_dex(ctx: Context<InitializeDexConfiguration>, fee: f64) -> Result<()> {
-        instructions::initialize_dex_configuration(ctx, fee)
+    pub fn initialize(ctx: Context<InitializeCurveConfiguration>, fee: f64) -> Result<()> {
+        instructions::initialize(ctx, fee)
     }
 
-    pub fn create_liquidity_pool(ctx: Context<CreateLiquidityPool>) -> Result<()> {
-        instructions::create_liquidity_pool(ctx)
-    }
+    // pub fn create_pool(ctx: Context<CreateLiquidityPool>) -> Result<()> {
+    //     instructions::create_pool(ctx)
+    // }
 
     pub fn add_liquidity(
         ctx: Context<AddLiquidity>,
@@ -33,7 +34,7 @@ pub mod dex {
         instructions::remove_liquidity(ctx, shares)
     }
 
-    pub fn swap(ctx: Context<Swap>, amount: u64) -> Result<()> {
-        instructions::swap(ctx, amount)
+    pub fn swap(ctx: Context<Swap>, amount: u64, style: u64) -> Result<()> {
+        instructions::swap(ctx, amount, style)
     }
 }

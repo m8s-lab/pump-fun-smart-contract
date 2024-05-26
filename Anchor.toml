@@ -4,18 +4,21 @@
 seeds = true
 skip-lint = false
 
+
 [programs.localnet]
-dex = "HHtpy5cez4guhvwoXVCZzo8EUce6ouJyXaxZ7r9CVR24"
+pump = "2Yf3UsHvREh1iQDAK6ZJf3uQb9ZGpHhPzy3D2jJQxLXQ"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
-wallet = "~/.config/solana/id.json"
+cluster = "localnet"
+wallet = "./id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 
 [test]
 startup_wait = 10000
+shutdown_wait = 2000
+upgradeable = false
