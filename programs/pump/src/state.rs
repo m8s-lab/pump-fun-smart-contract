@@ -152,7 +152,7 @@ pub trait LiquidityPoolAccount<'info> {
         style: u64,
         authority: &Signer<'info>,
         token_program: &Program<'info, Token>,
-        system_program: &Program<'info, System>
+        system_program: &Program<'info, System>,
     ) -> Result<()>;
 
     fn transfer_token_from_pool(
@@ -232,7 +232,7 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
 
         Ok(())
     }
-    
+
     fn add_liquidity(
         &mut self,
         token_one_accounts: (
@@ -301,7 +301,6 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
             authority,
             token_program,
         )?;
-
 
         Ok(())
     }
@@ -391,11 +390,18 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
         style: u64,
         authority: &Signer<'info>,
         token_program: &Program<'info, Token>,
-        system_program: &Program<'info, System>
+        system_program: &Program<'info, System>,
     ) -> Result<()> {
         if amount <= 0 {
             return err!(CustomError::InvalidAmount);
         }
+        msg!("Mint: {:?} ", token_one_accounts.0.key());
+        msg!(
+            "Swap: {:?} {:?} {:?}",
+            authority.key(),
+            style,
+            amount
+        );
 
         // xy = k => Constant product formula
         // (x + dx)(y - dy) = k
@@ -413,31 +419,31 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
             convert_from_float(adjusted_amount_in_float, token_one_accounts.0.decimals);
 
         if style == 1 {
-            
             let denominator_sum = self
                 .reserve_one
                 .checked_add(adjusted_amount)
                 .ok_or(CustomError::OverflowOrUnderflowOccurred)?;
-    
-            let div_amt = convert_to_float(denominator_sum, token_one_accounts.0.decimals)
-                .div(convert_to_float(adjusted_amount, token_one_accounts.0.decimals));
-    
+
+            let div_amt = convert_to_float(denominator_sum, token_one_accounts.0.decimals).div(
+                convert_to_float(adjusted_amount, token_one_accounts.0.decimals),
+            );
+
             let amount_out_in_float = convert_to_float(self.reserve_two, 9 as u8).div(div_amt);
-    
+
             let amount_out = convert_from_float(amount_out_in_float, 9 as u8);
-    
+
             let new_reserves_one = self
                 .reserve_one
                 .checked_add(amount)
                 .ok_or(CustomError::OverflowOrUnderflowOccurred)?;
-            
+
             let new_reserves_two = self
                 .reserve_two
                 .checked_sub(amount_out)
                 .ok_or(CustomError::OverflowOrUnderflowOccurred)?;
-    
+
             self.update_reserves(new_reserves_one, new_reserves_two)?;
-    
+            msg!{"Reserves: {:?} {:?}", new_reserves_one, new_reserves_two}
             self.transfer_token_to_pool(
                 token_one_accounts.2,
                 token_one_accounts.1,
@@ -445,7 +451,7 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
                 authority,
                 token_program,
             )?;
-    
+           
             self.transfer_sol_from_pool(
                 token_two_accounts.2,
                 token_two_accounts.1,
@@ -453,38 +459,39 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
                 system_program,
             )?;
         } else {
-            
             let denominator_sum = self
                 .reserve_two
                 .checked_add(adjusted_amount)
                 .ok_or(CustomError::OverflowOrUnderflowOccurred)?;
-    
-            let div_amt = convert_to_float(denominator_sum, token_one_accounts.0.decimals)
-                .div(convert_to_float(adjusted_amount, token_one_accounts.0.decimals));
-    
+
+            let div_amt = convert_to_float(denominator_sum, token_one_accounts.0.decimals).div(
+                convert_to_float(adjusted_amount, token_one_accounts.0.decimals),
+            );
+
             let amount_out_in_float = convert_to_float(self.reserve_one, 9 as u8).div(div_amt);
-    
+
             let amount_out = convert_from_float(amount_out_in_float, 9 as u8);
-    
+
             let new_reserves_one = self
                 .reserve_one
                 .checked_sub(amount_out)
                 .ok_or(CustomError::OverflowOrUnderflowOccurred)?;
-            
+
             let new_reserves_two = self
                 .reserve_two
                 .checked_add(amount)
                 .ok_or(CustomError::OverflowOrUnderflowOccurred)?;
-    
+            
             self.update_reserves(new_reserves_one, new_reserves_two)?;
             
+            msg!{"Reserves: {:?} {:?}", new_reserves_one, new_reserves_two}
             self.transfer_token_from_pool(
                 token_one_accounts.1,
                 token_one_accounts.2,
                 amount_out,
                 token_program,
             )?;
-    
+
             self.transfer_sol_to_pool(
                 token_two_accounts.2,
                 token_two_accounts.1,
@@ -579,8 +586,6 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
         amount: u64,
         system_program: &Program<'info, System>,
     ) -> Result<()> {
-
-        msg!("From: {:?} {:?}", from, amount);
         system_program::transfer(
             CpiContext::new_with_signer(
                 system_program.to_account_info(),
@@ -634,7 +639,6 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
         amount: u64,
         system_program: &Program<'info, System>,
     ) -> Result<()> {
-
         system_program::transfer(
             CpiContext::new(
                 system_program.to_account_info(),

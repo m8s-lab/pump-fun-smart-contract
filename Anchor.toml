@@ -4,15 +4,14 @@
 seeds = true
 skip-lint = false
 
-
-[programs.localnet]
-pump = "2Yf3UsHvREh1iQDAK6ZJf3uQb9ZGpHhPzy3D2jJQxLXQ"
+[programs.devnet]
+pump = "7RiUM3T5TE6VrqKE9ekPfn6SZNQ7Z7FEmQCyoXytdEVD"
 
 [registry]
-url = "https://api.apr.dev"
+url = "https://devnet.helius-rpc.com/?api-key=39d83ffa-585c-4f90-8636-2f6795db4cb3"
 
 [provider]
-cluster = "localnet"
+cluster = "Devnet"
 wallet = "./id.json"
 
 [scripts]
